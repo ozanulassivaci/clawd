@@ -17,13 +17,15 @@ class Display {
 public:
   void begin();
 
-  // Only actually redraws the OLED when state/usage/networkStatus changed
-  // since the last call, to avoid needless I2C traffic and flicker.
-  void render(ClawdState state, int8_t usagePercent, NetworkStatus networkStatus);
+  // Only actually redraws the OLED when state/usage/resetMinutes/
+  // networkStatus changed since the last call, to avoid needless I2C
+  // traffic and flicker.
+  void render(ClawdState state, int8_t usagePercent, int16_t resetMinutes,
+              NetworkStatus networkStatus);
 
 private:
   void drawConnecting(const char *line1, const char *line2);
-  void drawState(ClawdState state, int8_t usagePercent);
+  void drawState(ClawdState state, int8_t usagePercent, int16_t resetMinutes);
 
 #if CLAWD_USE_DEDICATED_72X40
   U8G2_SSD1306_72X40_ER_F_HW_I2C _u8g2{U8G2_R0, U8X8_PIN_NONE};
@@ -34,5 +36,6 @@ private:
   bool _hasRendered = false;
   ClawdState _lastState = ClawdState::UNKNOWN;
   int8_t _lastUsagePercent = -1;
+  int16_t _lastResetMinutes = -1;
   NetworkStatus _lastNetworkStatus = NetworkStatus::CONNECTING_WIFI;
 };

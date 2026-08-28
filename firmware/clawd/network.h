@@ -1,6 +1,6 @@
 // WiFi + MQTT connection management: non-blocking connect/reconnect state
-// machine, subscribes to clawd/state and clawd/usage, and publishes
-// clawd/availability via MQTT's last-will mechanism.
+// machine, subscribes to clawd/state, clawd/usage and clawd/reset_minutes,
+// and publishes clawd/availability via MQTT's last-will mechanism.
 #pragma once
 
 #include <PubSubClient.h>

@@ -39,13 +39,25 @@ public:
     _usagePercent = static_cast<int8_t>(percent);
   }
 
+  // Negative values ignored (defensive against a malformed payload). No
+  // upper bound: the 5-hour window can't exceed ~300 minutes, but a stale
+  // or malformed value shouldn't need a guess at the ceiling here.
+  void setResetMinutes(int minutes) {
+    if (minutes < 0) return;
+    _resetMinutes = static_cast<int16_t>(minutes);
+  }
+
   ClawdState state() const { return _state; }
 
   // -1 means "never received".
   int8_t usagePercent() const { return _usagePercent; }
 
+  // -1 means "never received".
+  int16_t resetMinutes() const { return _resetMinutes; }
+
 private:
   ClawdState _state = ClawdState::UNKNOWN;
   int8_t _usagePercent = -1;
+  int16_t _resetMinutes = -1;
   ClawdStateChangeHook _onStateChange = nullptr;
 };

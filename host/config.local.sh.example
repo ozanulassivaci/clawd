@@ -12,3 +12,4 @@ MQTT_PASS=""
 
 CLAWD_STATE_TOPIC="clawd/state"
 CLAWD_USAGE_TOPIC="clawd/usage"
+CLAWD_RESET_MINUTES_TOPIC="clawd/reset_minutes"
