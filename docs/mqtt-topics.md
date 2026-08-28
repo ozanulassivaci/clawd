@@ -4,6 +4,7 @@
 |---|---|---|---|---|---|
 | `clawd/state` | `IDLE` \| `WORKING` \| `NEEDS_APPROVAL` | yes | 0 | host hooks | device |
 | `clawd/usage` | integer string `0`-`100` | yes | 0 | host statusLine | device |
+| `clawd/reset_time` | `HH:MM` (local wall-clock time, 24h) | yes | 0 | host statusLine | device |
 | `clawd/availability` | `online` \| `offline` (MQTT last-will) | yes | 0 | device | none yet (debugging) |
 
 Notes:
@@ -18,6 +19,13 @@ Notes:
   is absent from the statusLine JSON (before the session's first API response,
   or on a non-Pro/Max plan). This is correct behavior, not a bug -- the device
   simply omits the percentage until a real value arrives.
+- `clawd/reset_time` is an **absolute** clock time, not a countdown. Both it
+  and `clawd/usage` only get published when `statusLine` fires, which only
+  happens in a terminal `claude` session (see the README callout) -- an
+  absolute time stays correct regardless of how long it's been since the
+  last update (within the same 5-hour window), whereas a countdown would
+  drift further from reality with every minute that passes without a fresh
+  publish.
 - `clawd/availability` costs nothing extra (it rides on PubSubClient's
   `connect()` last-will parameters) and is useful for debugging with
   `mosquitto_sub -t 'clawd/#' -v`, even though nothing subscribes to it yet.
