@@ -7,7 +7,7 @@
 #include "state.h"
 
 ClawdStateManager stateManager;
-NetworkManager network(stateManager);
+ClawdNetworkManager network(stateManager);
 Display display;
 
 void setup() {

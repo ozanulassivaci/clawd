@@ -14,9 +14,12 @@ enum class NetworkStatus {
   CONNECTED,
 };
 
-class NetworkManager {
+// Named ClawdNetworkManager, not NetworkManager: the ESP32 Arduino core
+// (arduino-esp32 3.x) ships its own global ::NetworkManager class (pulled in
+// transitively via <WiFi.h> -> Network.h), which collides otherwise.
+class ClawdNetworkManager {
 public:
-  explicit NetworkManager(ClawdStateManager &stateManager);
+  explicit ClawdNetworkManager(ClawdStateManager &stateManager);
 
   void begin();
   void loop();
@@ -29,7 +32,7 @@ private:
   void handleMessage(const char *topic, const uint8_t *payload, unsigned int length);
 
   static void mqttCallback(char *topic, uint8_t *payload, unsigned int length);
-  static NetworkManager *_instance;
+  static ClawdNetworkManager *_instance;
 
   ClawdStateManager &_stateManager;
   WiFiClient _wifiClient;

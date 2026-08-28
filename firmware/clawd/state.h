@@ -1,6 +1,8 @@
 // Session state model shared by the network and display layers.
 #pragma once
 
+#include <cstdint>
+
 enum class ClawdState {
   UNKNOWN,
   IDLE,
