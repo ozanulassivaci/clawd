@@ -12,7 +12,7 @@ HOST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${MQTT_PASS:=}"
 : "${CLAWD_STATE_TOPIC:=clawd/state}"
 : "${CLAWD_USAGE_TOPIC:=clawd/usage}"
-: "${CLAWD_RESET_MINUTES_TOPIC:=clawd/reset_minutes}"
+: "${CLAWD_RESET_TIME_TOPIC:=clawd/reset_time}"
 
 clawd_have_cmd() {
   command -v "$1" >/dev/null 2>&1

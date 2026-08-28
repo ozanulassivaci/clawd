@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 
 enum class ClawdState {
   UNKNOWN,
@@ -39,12 +40,12 @@ public:
     _usagePercent = static_cast<int8_t>(percent);
   }
 
-  // Negative values ignored (defensive against a malformed payload). No
-  // upper bound: the 5-hour window can't exceed ~300 minutes, but a stale
-  // or malformed value shouldn't need a guess at the ceiling here.
-  void setResetMinutes(int minutes) {
-    if (minutes < 0) return;
-    _resetMinutes = static_cast<int16_t>(minutes);
+  // Stored as the raw "HH:MM" wall-clock string published by the host --
+  // an absolute time rather than a countdown, so it stays correct even if
+  // this value goes stale (see statusline.sh for why).
+  void setResetTime(const char *time) {
+    strncpy(_resetTime, time, sizeof(_resetTime) - 1);
+    _resetTime[sizeof(_resetTime) - 1] = '\0';
   }
 
   ClawdState state() const { return _state; }
@@ -52,12 +53,12 @@ public:
   // -1 means "never received".
   int8_t usagePercent() const { return _usagePercent; }
 
-  // -1 means "never received".
-  int16_t resetMinutes() const { return _resetMinutes; }
+  // Empty string means "never received".
+  const char *resetTime() const { return _resetTime; }
 
 private:
   ClawdState _state = ClawdState::UNKNOWN;
   int8_t _usagePercent = -1;
-  int16_t _resetMinutes = -1;
+  char _resetTime[6] = "";
   ClawdStateChangeHook _onStateChange = nullptr;
 };

@@ -10,7 +10,7 @@ constexpr unsigned long WIFI_RETRY_INTERVAL_MS = 5000;
 constexpr unsigned long MQTT_RETRY_INTERVAL_MS = 5000;
 constexpr char TOPIC_STATE[] = "clawd/state";
 constexpr char TOPIC_USAGE[] = "clawd/usage";
-constexpr char TOPIC_RESET_MINUTES[] = "clawd/reset_minutes";
+constexpr char TOPIC_RESET_TIME[] = "clawd/reset_time";
 constexpr char TOPIC_AVAILABILITY[] = "clawd/availability";
 }  // namespace
 
@@ -70,7 +70,7 @@ void ClawdNetworkManager::connectMqtt() {
   _mqttClient.publish(TOPIC_AVAILABILITY, "online", true);
   _mqttClient.subscribe(TOPIC_STATE);
   _mqttClient.subscribe(TOPIC_USAGE);
-  _mqttClient.subscribe(TOPIC_RESET_MINUTES);
+  _mqttClient.subscribe(TOPIC_RESET_TIME);
 }
 
 void ClawdNetworkManager::mqttCallback(char *topic, uint8_t *payload, unsigned int length) {
@@ -89,7 +89,7 @@ void ClawdNetworkManager::handleMessage(const char *topic, const uint8_t *payloa
     _stateManager.setState(clawdStateFromString(buffer));
   } else if (strcmp(topic, TOPIC_USAGE) == 0) {
     _stateManager.setUsagePercent(atoi(buffer));
-  } else if (strcmp(topic, TOPIC_RESET_MINUTES) == 0) {
-    _stateManager.setResetMinutes(atoi(buffer));
+  } else if (strcmp(topic, TOPIC_RESET_TIME) == 0) {
+    _stateManager.setResetTime(buffer);
   }
 }

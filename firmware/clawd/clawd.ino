@@ -19,6 +19,6 @@ void setup() {
 
 void loop() {
   network.loop();
-  display.render(stateManager.state(), stateManager.usagePercent(), stateManager.resetMinutes(),
+  display.render(stateManager.state(), stateManager.usagePercent(), stateManager.resetTime(),
                   network.status());
 }

@@ -1,5 +1,5 @@
 // WiFi + MQTT connection management: non-blocking connect/reconnect state
-// machine, subscribes to clawd/state, clawd/usage and clawd/reset_minutes,
+// machine, subscribes to clawd/state, clawd/usage and clawd/reset_time,
 // and publishes clawd/availability via MQTT's last-will mechanism.
 #pragma once
 

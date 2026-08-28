@@ -2,10 +2,16 @@
 # Claude Code statusLine command.
 #
 # Always prints a normal status line. As a non-blocking side effect, publishes
-# the current 5-hour usage percentage and the minutes remaining until the
-# 5-hour window resets to MQTT when the API has reported them
+# the current 5-hour usage percentage and the wall-clock time the 5-hour
+# window resets at to MQTT when the API has reported them
 # (rate_limits.five_hour.* is absent -- not null -- before the session's
 # first API response, and on non-Pro/Max plans).
+#
+# The reset time is published as an absolute HH:MM (not "minutes remaining")
+# on purpose: this only updates when statusLine fires, so a countdown would
+# drift further from reality with every minute that passes without a fresh
+# update. An absolute clock time stays correct regardless of staleness, as
+# long as the 5-hour window hasn't rolled over since the last update.
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +23,7 @@ INPUT="$(cat)"
 MODEL="Claude"
 DIR_NAME=""
 PCT=""
-RESET_MIN=""
+RESET_TIME=""
 
 if clawd_have_cmd jq; then
   MODEL="$(jq -r '.model.display_name // "Claude"' <<<"$INPUT" 2>/dev/null)"
@@ -31,8 +37,7 @@ if clawd_have_cmd jq; then
 
   RESETS_AT="$(jq -r '.rate_limits.five_hour.resets_at // empty' <<<"$INPUT" 2>/dev/null)"
   if [[ -n "$RESETS_AT" ]]; then
-    NOW="$(date +%s)"
-    RESET_MIN="$(awk -v r="$RESETS_AT" -v n="$NOW" 'BEGIN{d=r-n; if(d<0)d=0; printf "%d", d/60}' 2>/dev/null)"
+    RESET_TIME="$(date -d "@$RESETS_AT" +%H:%M 2>/dev/null)"
   fi
 fi
 
@@ -43,6 +48,6 @@ LINE="$MODEL"
 printf '%s\n' "$LINE"
 
 [[ -n "$PCT" ]] && clawd_mqtt_publish "$CLAWD_USAGE_TOPIC" "$PCT" 1
-[[ -n "$RESET_MIN" ]] && clawd_mqtt_publish "$CLAWD_RESET_MINUTES_TOPIC" "$RESET_MIN" 1
+[[ -n "$RESET_TIME" ]] && clawd_mqtt_publish "$CLAWD_RESET_TIME_TOPIC" "$RESET_TIME" 1
 
 exit 0
