@@ -14,6 +14,10 @@ constexpr int16_t DRAW_Y_OFFSET = 0;
 constexpr int16_t DRAW_X_OFFSET = OLED_X_OFFSET;
 constexpr int16_t DRAW_Y_OFFSET = OLED_Y_OFFSET;
 #endif
+
+// NEEDS APPROVAL blinks at 1Hz (toggles every half-period) so it's hard to
+// miss glancing at the device.
+constexpr unsigned long BLINK_INTERVAL_MS = 500;
 }  // namespace
 
 void Display::begin() {
@@ -24,8 +28,12 @@ void Display::begin() {
 
 void Display::render(ClawdState state, int8_t usagePercent, const char *resetTime,
                       NetworkStatus networkStatus) {
+  bool blinking = (state == ClawdState::NEEDS_APPROVAL && networkStatus == NetworkStatus::CONNECTED);
+  bool blinkOn = !blinking || ((millis() / BLINK_INTERVAL_MS) % 2 == 0);
+
   if (_hasRendered && state == _lastState && usagePercent == _lastUsagePercent &&
-      strcmp(resetTime, _lastResetTime) == 0 && networkStatus == _lastNetworkStatus) {
+      strcmp(resetTime, _lastResetTime) == 0 && networkStatus == _lastNetworkStatus &&
+      blinkOn == _lastBlinkOn) {
     return;
   }
   _hasRendered = true;
@@ -34,6 +42,7 @@ void Display::render(ClawdState state, int8_t usagePercent, const char *resetTim
   strncpy(_lastResetTime, resetTime, sizeof(_lastResetTime) - 1);
   _lastResetTime[sizeof(_lastResetTime) - 1] = '\0';
   _lastNetworkStatus = networkStatus;
+  _lastBlinkOn = blinkOn;
 
   _u8g2.clearBuffer();
 
@@ -42,7 +51,7 @@ void Display::render(ClawdState state, int8_t usagePercent, const char *resetTim
   } else if (networkStatus == NetworkStatus::CONNECTING_MQTT) {
     drawConnecting("CONNECTING", "MQTT...");
   } else {
-    drawState(state, usagePercent, resetTime);
+    drawState(state, usagePercent, resetTime, blinkOn);
   }
 
   _u8g2.sendBuffer();
@@ -55,10 +64,13 @@ void Display::drawConnecting(const char *line1, const char *line2) {
 
 // Pixel positions below are a starting layout for the 72x40 panel with the
 // 6x10 font -- tune on real hardware.
-void Display::drawState(ClawdState state, int8_t usagePercent, const char *resetTime) {
+void Display::drawState(ClawdState state, int8_t usagePercent, const char *resetTime,
+                         bool blinkOn) {
   if (state == ClawdState::NEEDS_APPROVAL) {
-    _u8g2.drawStr(DRAW_X_OFFSET + 2, DRAW_Y_OFFSET + 14, "NEEDS");
-    _u8g2.drawStr(DRAW_X_OFFSET + 2, DRAW_Y_OFFSET + 26, "APPROVAL");
+    if (blinkOn) {
+      _u8g2.drawStr(DRAW_X_OFFSET + 2, DRAW_Y_OFFSET + 14, "NEEDS");
+      _u8g2.drawStr(DRAW_X_OFFSET + 2, DRAW_Y_OFFSET + 26, "APPROVAL");
+    }
   } else {
     _u8g2.drawStr(DRAW_X_OFFSET + 2, DRAW_Y_OFFSET + 20, clawdStateName(state));
   }

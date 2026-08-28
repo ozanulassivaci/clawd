@@ -19,13 +19,14 @@ public:
 
   // Only actually redraws the OLED when state/usage/resetTime/
   // networkStatus changed since the last call, to avoid needless I2C
-  // traffic and flicker.
+  // traffic and flicker. Exception: while state is NEEDS_APPROVAL, this
+  // redraws twice a second to blink the "NEEDS APPROVAL" text.
   void render(ClawdState state, int8_t usagePercent, const char *resetTime,
               NetworkStatus networkStatus);
 
 private:
   void drawConnecting(const char *line1, const char *line2);
-  void drawState(ClawdState state, int8_t usagePercent, const char *resetTime);
+  void drawState(ClawdState state, int8_t usagePercent, const char *resetTime, bool blinkOn);
 
 #if CLAWD_USE_DEDICATED_72X40
   U8G2_SSD1306_72X40_ER_F_HW_I2C _u8g2{U8G2_R0, U8X8_PIN_NONE};
@@ -38,4 +39,5 @@ private:
   int8_t _lastUsagePercent = -1;
   char _lastResetTime[6] = "";
   NetworkStatus _lastNetworkStatus = NetworkStatus::CONNECTING_WIFI;
+  bool _lastBlinkOn = true;
 };
