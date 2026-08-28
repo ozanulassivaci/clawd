@@ -1,0 +1,14 @@
+# Copy this file to config.local.sh and fill in real values.
+# config.local.sh is gitignored -- never commit real broker credentials here.
+# host/install.sh creates config.local.sh from this template automatically if
+# it doesn't already exist.
+
+MQTT_HOST="localhost"
+MQTT_PORT="1883"
+
+# Leave blank if the broker allows anonymous connections.
+MQTT_USER=""
+MQTT_PASS=""
+
+CLAWD_STATE_TOPIC="clawd/state"
+CLAWD_USAGE_TOPIC="clawd/usage"

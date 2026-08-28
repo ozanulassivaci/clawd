@@ -1,0 +1,10 @@
+# Local secrets/config -- never commit real credentials
+host/config.local.sh
+firmware/clawd/config.h
+
+# settings.json backups made by install.sh/uninstall.sh
+*.bak.*
+
+# Arduino IDE / editor cruft
+*.orig
+.DS_Store
